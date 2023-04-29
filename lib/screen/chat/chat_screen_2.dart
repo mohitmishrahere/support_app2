@@ -256,6 +256,7 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
             }));
 
     // loadProviderData();
+
     _firestore
         .collection('chatroom')
         .where('user', isEqualTo: widget.userId)
@@ -265,6 +266,35 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
       setState(() {
         docID = value.docs.isNotEmpty ? value.docs.first.id : null;
       });
+
+      if (docID == null) {
+        _firestore
+            .collection('chatroom')
+            .where('user', isEqualTo: widget.userId)
+            .where('listener', isEqualTo: widget.listenerId)
+            .snapshots()
+            .listen((value) {
+          docID = value.docs.isNotEmpty ? value.docs.first.id : null;
+          // ignore: avoid_function_literals_in_foreach_calls
+          value.docs.forEach((element) {
+            element.reference.update({'is_seen': true});
+          });
+        });
+        // set status online
+        if (isListener) {
+          _firestore.collection('chatroom').doc(docID).update({
+            'is_listner_online': true,
+            'is_user_typing': false,
+            'is_listner_typing': false
+          });
+        } else {
+          _firestore.collection('chatroom').doc(docID).update({
+            'is_user_online': true,
+            'is_user_typing': false,
+            'is_listner_typing': false
+          });
+        }
+      }
 
       // is Seen
       if (docID != null) {
@@ -342,47 +372,50 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
 
   Future<GetChatEndModel?> apigetChatEndAPI() async {
     try {
-      if (SharedPreference.getValue(PrefConstants.USER_TYPE) == 'user') {
-        getChatEndModel = await APIServices.getChatIdListnerSideAPI(
-            SharedPreference.getValue(PrefConstants.MERA_USER_ID), 'user');
-        if (getChatEndModel?.data != null) {
-          if (getChatEndModel?.data?.status == 'end') {
-            await stopWatchTimer.dispose();
-            // _timer?.cancel();
-            await APIServices.getBusyOnline(
-              'false',
-              SharedPreference.getValue(PrefConstants.MERA_USER_ID),
-            );
+      if (widget.isfromListnerInbox == false) {
+        if (SharedPreference.getValue(PrefConstants.USER_TYPE) == 'user') {
+          getChatEndModel = await APIServices.getChatIdListnerSideAPI(
+              SharedPreference.getValue(PrefConstants.MERA_USER_ID), 'user');
+          if (getChatEndModel?.data != null) {
+            if (getChatEndModel?.data?.status == 'end') {
+              await stopWatchTimer.dispose();
+              // _timer?.cancel();
+              await APIServices.getBusyOnline(
+                'false',
+                SharedPreference.getValue(PrefConstants.MERA_USER_ID),
+              );
 
-            if (mounted) {
-              _timer?.cancel();
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) =>
-                      FeedbackScreen(listenerId: widget.listenerId)));
-              Fluttertoast.showToast(msg: 'Chat End');
+              if (mounted) {
+                _timer?.cancel();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) =>
+                        FeedbackScreen(listenerId: widget.listenerId)));
+                Fluttertoast.showToast(msg: 'Chat End');
+              }
             }
           }
-        }
-      } else {
-        getChatEndModel = await APIServices.getChatIdListnerSideAPI(
-            SharedPreference.getValue(PrefConstants.MERA_USER_ID), 'listener');
-        if (getChatEndModel?.data != null) {
-          // _timer?.cancel();
-          chatIdAssignToListener = getChatEndModel?.data?.id;
-
-          if (getChatEndModel?.data?.status == 'end') {
-            await stopWatchTimer.dispose();
-            // _timer?.cancel();
-            await APIServices.getBusyOnline(
-              'false',
+        } else {
+          getChatEndModel = await APIServices.getChatIdListnerSideAPI(
               SharedPreference.getValue(PrefConstants.MERA_USER_ID),
-            );
+              'listener');
+          if (getChatEndModel?.data != null) {
+            // _timer?.cancel();
+            chatIdAssignToListener = getChatEndModel?.data?.id;
 
-            if (mounted) {
-              _timer?.cancel();
-              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                  builder: (context) => const ListnerHomeScreen()));
-              Fluttertoast.showToast(msg: 'Chat End');
+            if (getChatEndModel?.data?.status == 'end') {
+              await stopWatchTimer.dispose();
+              // _timer?.cancel();
+              await APIServices.getBusyOnline(
+                'false',
+                SharedPreference.getValue(PrefConstants.MERA_USER_ID),
+              );
+
+              if (mounted) {
+                _timer?.cancel();
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const ListnerHomeScreen()));
+                Fluttertoast.showToast(msg: 'Chat End');
+              }
             }
           }
         }
@@ -395,11 +428,15 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
 
   @override
   void dispose() async {
+    try {
+      await stopWatchTimer.dispose();
+    } catch (e) {
+      log(e.toString(), name: 'StopWatchTimer');
+    }
     _timer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _scrollController.dispose();
-    await stopWatchTimer.dispose();
     _chatController.dispose();
     nickNameController.dispose();
     super.dispose();
@@ -438,6 +475,36 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
   }
 
   Future<void> onSendMessage(String id) async {
+    if (docID == null) {
+      _firestore
+          .collection('chatroom')
+          .where('user', isEqualTo: widget.userId)
+          .where('listener', isEqualTo: widget.listenerId)
+          .get()
+          .then((value) {
+        setState(() {
+          docID = value.docs.isNotEmpty ? value.docs.first.id : null;
+        });
+        // ignore: avoid_function_literals_in_foreach_calls
+        value.docs.forEach((element) {
+          element.reference.update({'is_seen': true});
+        });
+      });
+      // set status online
+      if (isListener) {
+        _firestore.collection('chatroom').doc(docID).update({
+          'is_listner_online': true,
+          'is_user_typing': false,
+          'is_listner_typing': false
+        });
+      } else {
+        _firestore.collection('chatroom').doc(docID).update({
+          'is_user_online': true,
+          'is_user_typing': false,
+          'is_listner_typing': false
+        });
+      }
+    }
     if (_chatController.text.trim().isNotEmpty) {
       final chatRoomDetails =
           await _firestore.collection('chatroom').doc(docID).get();
@@ -446,9 +513,15 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
         "sendby": isListener ? widget.listenerName : widget.userName,
         "message": _chatController.text,
         "time": FieldValue.serverTimestamp(),
-        "is_seen": isListener && chatRoomDetails["is_user_online"]
+        "is_seen": isListener &&
+                chatRoomDetails.exists &&
+                chatRoomDetails.data()!.containsKey("is_user_online") &&
+                chatRoomDetails["is_user_online"]
             ? true
-            : !isListener && chatRoomDetails["is_listner_online"]
+            : !isListener &&
+                    chatRoomDetails.exists &&
+                    chatRoomDetails.data()!.containsKey("is_listner_online") &&
+                    chatRoomDetails["is_listner_online"]
                 ? true
                 : false,
         "user_type": isListener ? "listener" : "user",
@@ -605,9 +678,6 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
             context,
             MaterialPageRoute(builder: (context) => const ListnerHomeScreen()),
           );
-          // Navigator.of(context).pushAndRemoveUntil(
-          //     MaterialPageRoute(builder: (context) => const ListnerHomeScreen()),
-          //     (Route<dynamic> route) => false);
 
           return true;
         } else {
@@ -862,9 +932,22 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
                                 .doc(docID)
                                 .update({
                               "last_time": FieldValue.serverTimestamp(),
-                              "listener_count":
-                                  isListener ? value["listener_count"] : 0,
-                              "user_count": isListener ? 0 : value["user_count"]
+                              "listener_count": isListener
+                                  ? value.exists &&
+                                          value
+                                              .data()!
+                                              .containsKey("listener_count")
+                                      ? value["listener_count"]
+                                      : 0
+                                  : 0,
+                              "user_count": isListener
+                                  ? 0
+                                  : value.exists &&
+                                          value
+                                              .data()!
+                                              .containsKey("user_count")
+                                      ? value["user_count"]
+                                      : 0,
                             });
                           });
 
@@ -987,8 +1070,7 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
                                                               ['sendby'] ==
                                                           widget.userName
                                                       ? const Color(0xff23408e)
-                                                      : Colors.grey
-                                                          .withOpacity(0.8)),
+                                                      : Colors.green),
                                           child: Column(
                                             crossAxisAlignment: isListener
                                                 ? snapshot.data!.docs[index]
@@ -1021,17 +1103,11 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
                                                           AsyncSnapshot<
                                                                   DocumentSnapshot>
                                                               snapshot2) {
-                                                        if (snapshot.hasData) {
-                                                          final senderReplyName = snapshot
-                                                                          .data!
-                                                                          .docs[index]
-                                                                      [
-                                                                      'sendby'] ==
-                                                                  widget
-                                                                      .listenerName
-                                                              ? widget
-                                                                  .listenerName
-                                                              : 'Anonymous';
+                                                        if (snapshot2.hasData) {
+                                                          final senderReplyName =
+                                                              snapshot2.data![
+                                                                  'sendby'];
+
                                                           return ReplyMessageWidget(
                                                               message: snapshot2
                                                                           .data?[

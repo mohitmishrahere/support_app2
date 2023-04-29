@@ -6,9 +6,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../api/api_services.dart';
 import '../../model/support_chat_model.dart';
+import '../home/listner_image.dart';
 
 class SupportChat extends StatefulWidget {
-  const SupportChat({super.key});
+  final SupportChatModel? supportChatModel;
+  const SupportChat({super.key, this.supportChatModel});
 
   @override
   State<SupportChat> createState() => _SupportChatState();
@@ -16,31 +18,17 @@ class SupportChat extends StatefulWidget {
 
 class _SupportChatState extends State<SupportChat> {
   bool isProgressRunning = false;
-  SupportChatModel? supportChatModel;
+
   late final Uri url;
 
-  Future<void> apiSupportChat() async {
-    try {
-      setState(() {
-        isProgressRunning = true;
-      });
-
-      supportChatModel = await APIServices.getSupportChatAPI('730');
-      // SharedPreference.getValue(PrefConstants.MERA_USER_ID));
-      if (supportChatModel!.allMessages!.isNotEmpty &&
-          supportChatModel?.allMessages?[0].id != null) {
-        for (int i = 0; i < supportChatModel!.allMessages!.length; i++) {
-          if (supportChatModel?.allMessages?[i].id != null) {
-            await apiMessageRead(supportChatModel?.allMessages?[i].id);
-          }
+  Future<void> readMessage() async {
+    if (widget.supportChatModel!.allMessages!.isNotEmpty &&
+        widget.supportChatModel?.allMessages?[0].id != null) {
+      for (int i = 0; i < widget.supportChatModel!.allMessages!.length; i++) {
+        if (widget.supportChatModel?.allMessages?[i].id != null) {
+          await apiMessageRead(widget.supportChatModel?.allMessages?[i].id);
         }
       }
-    } catch (e) {
-      log(e.toString());
-    } finally {
-      setState(() {
-        isProgressRunning = false;
-      });
     }
   }
 
@@ -64,12 +52,13 @@ class _SupportChatState extends State<SupportChat> {
   @override
   void initState() {
     super.initState();
-    apiSupportChat();
+    readMessage();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: InkWell(
             onTap: () => Navigator.pop(context),
@@ -82,14 +71,15 @@ class _SupportChatState extends State<SupportChat> {
             padding: const EdgeInsets.fromLTRB(15.0, 20, 15, 30),
             child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: supportChatModel?.allMessages?.length ?? 0,
+                itemCount: widget.supportChatModel?.allMessages?.length ?? 0,
                 scrollDirection: Axis.vertical,
                 physics: const ScrollPhysics(),
                 itemBuilder: (context, index) {
-                  supportChatModel?.allMessages?[index].link != null &&
-                      supportChatModel!.allMessages![index].link!.isNotEmpty;
+                  widget.supportChatModel?.allMessages?[index].link != null &&
+                      widget.supportChatModel!.allMessages![index].link!
+                          .isNotEmpty;
                   final Uri url = Uri.parse(
-                      supportChatModel?.allMessages?[index].link ?? '');
+                      widget.supportChatModel?.allMessages?[index].link ?? '');
 
                   Future<void> launchUrlInApp() async {
                     if (!await launchUrl(url)) {
@@ -97,94 +87,141 @@ class _SupportChatState extends State<SupportChat> {
                     }
                   }
 
-                  return Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20.0),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.grey.shade300,
-                                  spreadRadius: 5,
-                                  blurRadius: 5)
-                            ],
-                            color: Colors.white),
-                        child: ListTile(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const SupportChat()),
-                            );
-                          },
-                          title: Text(
-                              supportChatModel?.allMessages?[index].title ??
-                                  ''),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.only(top: 4.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Text(
-                                  supportChatModel
-                                          ?.allMessages?[index].message ??
-                                      '',
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                if (supportChatModel
-                                            ?.allMessages?[index].link !=
-                                        null &&
-                                    supportChatModel!.allMessages![index].link!
-                                        .isNotEmpty) ...{
-                                  const SizedBox(height: 6),
-                                  InkWell(
-                                    onTap: () {
-                                      launchUrlInApp();
-                                    },
-                                    child: Text(
-                                      supportChatModel
-                                              ?.allMessages?[index].link ??
-                                          '',
-                                      textAlign: TextAlign.start,
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 20.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10.0),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20.0),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Colors.grey.shade300,
+                                    spreadRadius: 5,
+                                    blurRadius: 5)
+                              ],
+                              color: Colors.white),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ListnerImage(
+                                                image: CachedNetworkImage(
+                                                  imageUrl: widget
+                                                          .supportChatModel
+                                                          ?.allMessages?[index]
+                                                          .image ??
+                                                      '',
+                                                  width: double.infinity,
+                                                  height: MediaQuery.of(context)
+                                                      .size
+                                                      .height,
+                                                  fit: BoxFit.cover,
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          Image.asset(
+                                                    "assets/images/logo.png",
+                                                    width: 60,
+                                                    height: 60,
+                                                    //  fit: BoxFit.cover,
+                                                  ),
+                                                  placeholder: (context, url) =>
+                                                      Image.asset(
+                                                    "assets/images/logo.png",
+                                                    width: 60,
+                                                    height: 60,
+                                                    //fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                              )));
+                                },
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  child: CachedNetworkImage(
+                                    imageUrl: widget.supportChatModel
+                                            ?.allMessages?[index].image ??
+                                        '',
+                                    width: double.infinity,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.2,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset(
+                                      "assets/images/logo.png",
+                                      width: 60,
+                                      height: 60,
+                                      //  fit: BoxFit.cover,
+                                    ),
+                                    placeholder: (context, url) => Image.asset(
+                                      "assets/images/logo.png",
+                                      width: 60,
+                                      height: 60,
+                                      //fit: BoxFit.cover,
                                     ),
                                   ),
-                                }
-                              ],
-                            ),
-                          ),
-                          leading: CachedNetworkImage(
-                            imageUrl:
-                                supportChatModel?.allMessages?[index].image ??
-                                    '',
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                            errorWidget: (context, url, error) => Image.asset(
-                              "assets/logo.png",
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
-                            placeholder: (context, url) => Image.asset(
-                              "assets/logo.png",
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(widget.supportChatModel?.allMessages?[index]
+                                      .title ??
+                                  ''),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 10.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.supportChatModel
+                                              ?.allMessages?[index].message ??
+                                          '',
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    if (widget.supportChatModel
+                                                ?.allMessages?[index].link !=
+                                            null &&
+                                        widget
+                                            .supportChatModel!
+                                            .allMessages![index]
+                                            .link!
+                                            .isNotEmpty) ...{
+                                      const SizedBox(height: 6),
+                                      InkWell(
+                                        onTap: () {
+                                          launchUrlInApp();
+                                        },
+                                        child: Text(
+                                          widget.supportChatModel
+                                                  ?.allMessages?[index].link ??
+                                              '',
+                                          textAlign: TextAlign.start,
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    }
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   );
                 }),
           ),

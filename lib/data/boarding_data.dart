@@ -11,7 +11,7 @@ class OnboardingModel {
 class OnboardingData {
   static final List<OnboardingModel> onboardingData = [
     OnboardingModel(
-      title: "Take a step forward",
+      title: "Take a step forward 2",
       image: "assets/images/boarding1.jpg",
       subtitle:
           "Gratitude is the most heartwarming\nfeeling. Praise someone in the\neasiest way possible",

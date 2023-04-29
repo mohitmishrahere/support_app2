@@ -32,7 +32,7 @@ class _ReplyMessageWidgetState extends State<ReplyMessageWidget> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              color: Colors.green,
+              color: Colors.orangeAccent,
               width: 4,
             ),
             const SizedBox(width: 8),
@@ -65,10 +65,9 @@ class _ReplyMessageWidgetState extends State<ReplyMessageWidget> {
                 Expanded(
                   child: Text(
                     key: ValueKey(widget.chatDocId),
-              
                     widget.senderName ?? '',
                     style: const TextStyle(
-                        color: colorRed, fontWeight: FontWeight.bold),
+                        color: Colors.red, fontWeight: FontWeight.w900),
                   ),
                 ),
                 if (widget.onCancelReply != null)

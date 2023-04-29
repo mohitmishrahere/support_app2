@@ -61,19 +61,8 @@ class InboxScreenState extends State<InboxScreen> {
         isProgressRunning = true;
       });
 
-      supportChatModel = await APIServices.getSupportChatAPI('730');
-      // SharedPreference.getValue(PrefConstants.MERA_USER_ID));
-      if (supportChatModel!.allMessages!.isNotEmpty &&
-          supportChatModel?.allMessages?[0].id != null) {
-        for (int i = 0; i < supportChatModel!.allMessages!.length; i++) {
-          if (supportChatModel?.allMessages?[i].id != null) {
-            await apiMessageRead(supportChatModel?.allMessages?[i].id);
-          }
-          setState(() {
-            chatCount = supportChatModel!.allMessages!.length;
-          });
-        }
-      }
+      supportChatModel = await APIServices.getSupportChatAPI(
+          SharedPreference.getValue(PrefConstants.MERA_USER_ID));
     } catch (e) {
       log(e.toString());
     } finally {
@@ -82,23 +71,6 @@ class InboxScreenState extends State<InboxScreen> {
           isProgressRunning = false;
         });
       }
-    }
-  }
-
-  // Message Read
-  Future<void> apiMessageRead(int? messageId) async {
-    try {
-      setState(() {
-        isProgressRunning = true;
-      });
-
-      await APIServices.getSupportMessageReadAPI(messageId ?? 1);
-    } catch (e) {
-      log(e.toString());
-    } finally {
-      setState(() {
-        isProgressRunning = false;
-      });
     }
   }
 
@@ -146,20 +118,24 @@ class InboxScreenState extends State<InboxScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const SupportChat()),
+                          builder: (context) => SupportChat(
+                                supportChatModel: supportChatModel,
+                              )),
                     );
                   },
                   title: const Text('Support'),
-                  subtitle: supportChatModel?.unreadMessages != 0
-                      ? const Text(
-                          'You have a new message',
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        )
-                      : const SizedBox(),
+                  subtitle:
+                      // supportChatModel?.unreadMessages != 0
+                      //     ?
+                      Text(
+                    supportChatModel?.allMessages?[0].title ?? "",
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  // : const SizedBox(),
                   leading: Image.asset(
                     "assets/logo.png",
                     // width: 100,
@@ -167,7 +143,7 @@ class InboxScreenState extends State<InboxScreen> {
                   ),
                   trailing: Visibility(
                     visible:
-                        supportChatModel?.unreadMessages != 0 ? false : true,
+                        supportChatModel?.unreadMessages != 0 ? true : false,
                     child: Container(
                       decoration: BoxDecoration(boxShadow: [
                         BoxShadow(
@@ -199,7 +175,7 @@ class InboxScreenState extends State<InboxScreen> {
                       child: ListView.builder(
                           // restorationId: 'inbox_list',
                           shrinkWrap: true,
-                          physics: const ClampingScrollPhysics(),
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: chats.length,
                           itemBuilder: (context, index) {
                             var item = chats[index];

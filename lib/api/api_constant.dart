@@ -50,6 +50,8 @@ class APIConstants {
   static const String getChat = "get_chat";
   static const String chatEnd = "chat_end";
   static const String getCallID = "get_call";
+  static const String getAdminMessageFromSupport = "get_admin_message/";
+  static const String readAdminMessageFromSupport = "admin_message_read";
 }
 
 class PrefConstants {

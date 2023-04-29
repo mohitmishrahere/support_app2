@@ -45,10 +45,10 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
   SendChatIDModel? chatIdModel;
 
   UpdateChatRequestModel? updateChatRequestModel = UpdateChatRequestModel();
-    String? docID;
-    final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? docID;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-    checkStatus() async {
+  checkStatus() async {
     var data = await _firestore.collection('chatroom').doc(docID).get();
   }
 
@@ -56,7 +56,7 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
   void initState() {
     super.initState();
 
-     _firestore
+    _firestore
         .collection('chatroom')
         .where('user', isEqualTo: widget.userId)
         .where('listener', isEqualTo: widget.listenerId)
@@ -66,11 +66,7 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
         docID = value.docs.isNotEmpty ? value.docs.first.id : null;
       });
       checkStatus();
-
-    }). then((value) => chatId());
-
-
-    
+    }).then((value) => chatId());
 
     controller = AnimationController(
         vsync: this,
@@ -91,7 +87,6 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
                 widget.userChatSendRequest?.data?.id ?? 0, 'cancelled');
 
         if (updateChatRequestModel?.status == true) {
-          
           EasyLoading.dismiss();
           if (mounted) {
             // Navigator.pop(context);
@@ -120,17 +115,15 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
   Future<SendChatIDModel?> chatId() async {
     try {
       chatIdModel = await APIServices.sendChatIDAPI(
-          widget.userId, widget.listenerId, 
-          // 'message'
-          docID ?? '0',
-          );
+        widget.userId, widget.listenerId,
+        // 'message'
+        docID ?? '0',
+      );
     } catch (e) {
       log(e.toString());
     }
     return chatIdModel;
   }
-
-
 
   Future<GetChatRequestByUserModel?> getChatRequestByUser() async {
     try {
@@ -148,13 +141,12 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
                         userId: widget.userId,
                         userName: widget.userName,
                         chatId: chatIdModel?.data?.id,
+                        
                       )),
               (Route<dynamic> route) => false);
         }
       } else if (getChatRequestByUserModel?.data?[0].status == 'decline') {
         if (mounted) {
-          
-
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (context) => const HomeScreen()),
               (Route<dynamic> route) => false);

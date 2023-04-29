@@ -935,13 +935,9 @@ class APIServices {
   // Get Chat Request
   static Future<SupportChatModel?> getSupportChatAPI(String username) async {
     try {
-      
-      var response =
-          await dio.get('https://2ndlife.in/api/get_admin_message/$username');
-
-      // APIConstants.API_BASE_URL +
-      //   APIConstants.getChatRequestByUser +
-      //   requestId);
+      var response = await dio.get(APIConstants.API_BASE_URL +
+          APIConstants.getAdminMessageFromSupport +
+          username);
       if (response.statusCode == 200) {
         log(response.toString());
         return SupportChatModel.fromJson(response.data);
@@ -954,15 +950,13 @@ class APIServices {
 
   //Message REad
   // Get Chat Request
-  static Future<SupportChatModel?> getSupportMessageReadAPI(int messageId) async {
+  static Future<SupportChatModel?> getSupportMessageReadAPI(
+      int messageId) async {
     try {
-   
-      var response =
-          await dio.get('https://2ndlife.in/api/get_admin_message/$messageId');
+      var response = await dio.post(
+          APIConstants.API_BASE_URL + APIConstants.readAdminMessageFromSupport,
+          data: FormData.fromMap({"message_id": messageId}));
 
-      // APIConstants.API_BASE_URL +
-      //   APIConstants.getChatRequestByUser +
-      //   requestId);
       if (response.statusCode == 200) {
         log(response.toString());
         return SupportChatModel.fromJson(response.data);

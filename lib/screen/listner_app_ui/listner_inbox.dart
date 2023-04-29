@@ -7,10 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timeago_flutter/timeago_flutter.dart';
 
+import '../../api/api_constant.dart';
 import '../../api/api_services.dart';
 import '../../model/listner/listner_chat_request_model.dart';
 import '../../model/listner/nick_name_get_model.dart';
+import '../../model/support_chat_model.dart';
+import '../../sharedpreference/sharedpreference.dart';
 import '../chat/chat_screen_2.dart';
+import '../support_chat/support_chat.dart';
 
 class ListnerInboxScreen extends StatefulWidget {
   const ListnerInboxScreen({Key? key}) : super(key: key);
@@ -33,6 +37,7 @@ class ListnerInboxScreenState extends State<ListnerInboxScreen> {
   bool isFirstCall = true;
   Timer? _timer;
   bool ispopupVisible = false;
+  SupportChatModel? supportChatModel;
 
   final audioPlayer = AudioPlayer();
 
@@ -62,6 +67,7 @@ class ListnerInboxScreenState extends State<ListnerInboxScreen> {
     super.initState();
     _loading = true;
     loadData();
+    apiSupportChat();
   }
 
   @override
@@ -70,6 +76,26 @@ class ListnerInboxScreenState extends State<ListnerInboxScreen> {
 
     super.dispose();
     _timer?.cancel();
+  }
+
+  // Support Chat
+  Future<void> apiSupportChat() async {
+    try {
+      setState(() {
+        isProgressRunning = true;
+      });
+
+      supportChatModel = await APIServices.getSupportChatAPI(
+          SharedPreference.getValue(PrefConstants.MERA_USER_ID));
+    } catch (e) {
+      log(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          isProgressRunning = false;
+        });
+      }
+    }
   }
 
   Future<NickNameGETModel> apigetNickName() async {
@@ -85,131 +111,212 @@ class ListnerInboxScreenState extends State<ListnerInboxScreen> {
   Widget build(BuildContext context) {
     return _loading
         ? const Center(child: CircularProgressIndicator())
-        : StreamBuilder<QuerySnapshot>(
-            stream: _firestore
-                .collection('chatroom')
-                .where('listener', isEqualTo: id)
-                .snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.hasData) {
-                var chats = snapshot.data!.docs;
-                return Padding(
-                  padding: const EdgeInsets.only(top: 25.0),
-                  child: ListView.builder(
-                      itemCount: chats.length,
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
-                        String nickname = 'Anonymous';
-                        var item = chats[index];
+        : SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 25),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20.0),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.grey.shade300,
+                            spreadRadius: 5,
+                            blurRadius: 5)
+                      ],
+                      color: Colors.white),
+                  child: ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SupportChat(
+                                  supportChatModel: supportChatModel,
+                                )),
+                      );
+                    },
+                    title: const Text('Support'),
+                    subtitle: Text(
+                      supportChatModel?.allMessages?[0].title ?? "",
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    leading: Image.asset(
+                      "assets/logo.png",
+                      // width: 100,
+                      height: 80,
+                    ),
+                    trailing: Visibility(
+                      visible:
+                          supportChatModel?.unreadMessages != 0 ? true : false,
+                      child: Container(
+                        decoration: BoxDecoration(boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.shade500,
+                            blurRadius: 10.0,
+                          ),
+                        ], shape: BoxShape.circle, color: Colors.green),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            supportChatModel?.unreadMessages.toString() ?? "0",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                StreamBuilder<QuerySnapshot>(
+                    stream: _firestore
+                        .collection('chatroom')
+                        .where('listener', isEqualTo: id)
+                        .snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      if (snapshot.hasData) {
+                        var chats = snapshot.data!.docs;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: ListView.builder(
+                              itemCount: chats.length,
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) {
+                                String nickname = 'Anonymous';
+                                var item = chats[index];
 
-                        return FutureBuilder<NickNameGETModel?>(
-                            future: apigetNickName(),
-                            builder: (context, snapshot2) {
-                              if (snapshot2.data == null) {
-                                return const Center(child: SizedBox());
-                              }
+                                return FutureBuilder<NickNameGETModel?>(
+                                    future: apigetNickName(),
+                                    builder: (context, snapshot2) {
+                                      if (snapshot2.data == null) {
+                                        return const Center(child: SizedBox());
+                                      }
 
-                              if (snapshot2.data?.status == true &&
-                                  snapshot2.data?.data != null) {
-                                for (int i = 0;
-                                    i < snapshot2.data!.data!.length;
-                                    i++) {
-                                  if (snapshot2.data!.data?[i].toId ==
-                                      item['user']) {
-                                    nickname = snapshot2.data!.data?[i].nickname
-                                            .toString() ??
-                                        'Anonymous';
-                                  } else {
-                                    log('not match');
-                                  }
-                                }
-                              }
-                              return Container(
-                                margin: const EdgeInsets.symmetric(
-                                    horizontal: 20.0, vertical: 10.0),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.grey.shade300,
-                                          spreadRadius: 5,
-                                          blurRadius: 5)
-                                    ],
-                                    color: Colors.white),
-                                child: ListTile(
-                                  key: UniqueKey(),
-                                  onTap: () {
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                            builder: (context) =>
-                                                ChatRoomScreen(
-                                                  listenerId: id,
-                                                  listenerName: name,
-                                                  userId: item['user'],
-                                                  userName: nickname,
-                                                  isTextFieldVisible: false,
-                                                  isfromListnerInbox: true,
-                                                  // item['user_name'],
-                                                )),
-                                        (Route<dynamic> route) => false);
-                                  },
-                                  title: Text(nickname),
-                                  subtitle: item["user_count"] > 0
-                                      ? const Text(
-                                          'You have a new message',
-                                          style: TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        )
-                                      : Timeago(
-                                          date: item["last_time"] == null
-                                              ? DateTime.now()
-                                              : item["last_time"].toDate(),
-                                          builder: (BuildContext context,
-                                              String value) {
-                                            return Text(
-                                              value,
-                                              style: const TextStyle(
-                                                fontSize: 12.0,
-                                              ),
-                                            );
+                                      if (snapshot2.data?.status == true &&
+                                          snapshot2.data?.data != null) {
+                                        for (int i = 0;
+                                            i < snapshot2.data!.data!.length;
+                                            i++) {
+                                          if (snapshot2.data!.data?[i].toId ==
+                                              item['user']) {
+                                            nickname = snapshot2
+                                                    .data!.data?[i].nickname
+                                                    .toString() ??
+                                                'Anonymous';
+                                          } else {
+                                            log('not match');
+                                          }
+                                        }
+                                      }
+                                      return Container(
+                                        margin: const EdgeInsets.symmetric(
+                                            horizontal: 20.0, vertical: 10.0),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(20.0),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                  color: Colors.grey.shade300,
+                                                  spreadRadius: 5,
+                                                  blurRadius: 5)
+                                            ],
+                                            color: Colors.white),
+                                        child: ListTile(
+                                          key: UniqueKey(),
+                                          onTap: () {
+                                            Navigator.of(context)
+                                                .pushAndRemoveUntil(
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ChatRoomScreen(
+                                                              listenerId: id,
+                                                              listenerName:
+                                                                  name,
+                                                              userId:
+                                                                  item['user'],
+                                                              userName:
+                                                                  nickname,
+                                                              isTextFieldVisible:
+                                                                  false,
+                                                              isfromListnerInbox:
+                                                                  true,
+                                                              // item['user_name'],
+                                                            )),
+                                                    (Route<dynamic> route) =>
+                                                        false);
                                           },
+                                          title: Text(nickname),
+                                          subtitle: item["user_count"] > 0
+                                              ? const Text(
+                                                  'You have a new message',
+                                                  style: TextStyle(
+                                                    color: Colors.grey,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                )
+                                              : Timeago(
+                                                  date:
+                                                      item["last_time"] == null
+                                                          ? DateTime.now()
+                                                          : item["last_time"]
+                                                              .toDate(),
+                                                  builder:
+                                                      (BuildContext context,
+                                                          String value) {
+                                                    return Text(
+                                                      value,
+                                                      style: const TextStyle(
+                                                        fontSize: 12.0,
+                                                      ),
+                                                    );
+                                                  },
+                                                ),
+                                          leading: const Icon(
+                                              Icons.account_circle,
+                                              size: 42.0),
+                                          trailing: Visibility(
+                                            visible: item["user_count"] > 0,
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: Colors.green),
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  isListener
+                                                      ? item["user_count"]
+                                                          .toString()
+                                                      : item["listener_count"]
+                                                          .toString(),
+                                                  style: const TextStyle(
+                                                      color: Colors.white),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
                                         ),
-                                  leading: const Icon(Icons.account_circle,
-                                      size: 42.0),
-                                  trailing: Visibility(
-                                    visible: item["user_count"] > 0,
-                                    child: Container(
-                                      decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.green),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          isListener
-                                              ? item["user_count"].toString()
-                                              : item["listener_count"]
-                                                  .toString(),
-                                          style: const TextStyle(
-                                              color: Colors.white),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              );
-                            });
-                      }),
-                );
-              } else if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return Container();
-              }
-            });
+                                      );
+                                    });
+                              }),
+                        );
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else {
+                        return Container();
+                      }
+                    }),
+              ],
+            ),
+          );
   }
 }

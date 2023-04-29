@@ -167,10 +167,6 @@ class _ListnerHomeScreenState extends State<ListnerHomeScreen>
                       EasyLoading.dismiss();
                       if (toggleButtonONOFFModel?.data?.onlineStatus == '1') {
                         EasyLoading.showSuccess('Online');
-                        // await APIServices.getBusyOnline(
-                        //   'false',
-                        //   SharedPreference.getValue(PrefConstants.MERA_USER_ID),
-                        // );
                       } else if (toggleButtonONOFFModel?.data?.onlineStatus ==
                           '0') {
                         EasyLoading.showSuccess('Offline');

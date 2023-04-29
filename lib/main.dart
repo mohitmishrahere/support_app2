@@ -19,7 +19,6 @@ import 'global/theme.dart';
 import 'global/utils.dart';
 import 'push_notification/firebase_messaging.dart';
 import 'screen/auth/boarding_screen.dart';
-import 'screen/call/incoming_call_screen.dart';
 import 'screen/listner_app_ui/listner_homescreen.dart';
 
 Future<void> backgroundHandler(RemoteMessage message) async {
@@ -79,21 +78,21 @@ class _MyAppState extends State<MyApp> {
         //   //   );
         //   // }
         // }
-        if (message?.data['channel_id'] != null) {
-          log("Current route${Get.currentRoute}");
+        // if (message?.data['channel_id'] != null) {
+        //   log("Current route${Get.currentRoute}");
 
-          log("channel id ${message?.data['channel_id']}");
-          log("channel token${message?.data['channel_token']}");
+        //   log("channel id ${message?.data['channel_id']}");
+        //   log("channel token${message?.data['channel_token']}");
 
-          Get.to(
-            () => IncomingCallScreen(
-              name: message?.data['name'],
-              channelId: message?.data['channel_id'],
-              channelToken: message?.data['channel_token'],
-              uid: int.parse(message?.data["user_id"] ?? "0"),
-            ),
-          );
-        }
+        // Get.to(
+        //   () => IncomingCallScreen(
+        //     name: message?.data['name'],
+        //     channelId: message?.data['channel_id'],
+        //     channelToken: message?.data['channel_token'],
+        //     uid: int.parse(message?.data["user_id"] ?? "0"),
+        //   ),
+        // );
+        // }
       },
     );
 
@@ -101,21 +100,23 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.onMessage.listen(
       (message) {
         log("FirebaseMessaging.onMessage.listen");
-        if (message.notification != null &&
-            message.data['channel_id'] != null) {
+        if (message.notification != null
+            //  &&
+            //     message.data['channel_id'] != null
+            ) {
           log(message.notification!.title.toString());
           log(message.notification!.body.toString());
           log("message.data11 ${message.data}");
           // LocalNotificationService.display(message);
 
-          Get.to(
-            () => IncomingCallScreen(
-              name: message.data['name'],
-              channelId: message.data['channel_id'],
-              channelToken: message.data['channel_token'],
-              uid: int.parse(message.data["user_id"] ?? "0"),
-            ),
-          );
+          // Get.to(
+          //   () => IncomingCallScreen(
+          //     name: message.data['name'],
+          //     channelId: message.data['channel_id'],
+          //     channelToken: message.data['channel_token'],
+          //     uid: int.parse(message.data["user_id"] ?? "0"),
+          //   ),
+          // );
         }
       },
     );
@@ -124,20 +125,22 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.onMessageOpenedApp.listen(
       (message) {
         log("FirebaseMessaging.onMessageOpenedApp.listen");
-        if (message.notification != null &&
-            message.data['channel_id'] != null) {
+        if (message.notification != null
+            //  &&
+            //     message.data['channel_id'] != null
+            ) {
           log(message.notification?.title.toString() ?? '');
           log(message.notification?.body.toString() ?? '');
           log("message.data22 ${message.data['_id']}");
 
-          Get.to(
-            () => IncomingCallScreen(
-              name: message.data['name'],
-              channelId: message.data['channel_id'],
-              channelToken: message.data['channel_token'],
-              uid: int.parse(message.data["user_id"] ?? "0"),
-            ),
-          );
+          // Get.to(
+          //   () => IncomingCallScreen(
+          //     name: message.data['name'],
+          //     channelId: message.data['channel_id'],
+          //     channelToken: message.data['channel_token'],
+          //     uid: int.parse(message.data["user_id"] ?? "0"),
+          //   ),
+          // );
         }
       },
     );
@@ -161,11 +164,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return
-        // Scaffold(
-        //   body: home,
-        // );
-        GetMaterialApp(
+    return GetMaterialApp(
       color: primaryColor,
       debugShowCheckedModeBanner: false,
       title: 'Support',

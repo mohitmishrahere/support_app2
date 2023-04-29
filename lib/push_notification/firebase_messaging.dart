@@ -15,9 +15,9 @@ class Messaging {
     // // storeToken(fcm_token);
 
     firebaseMessaging.getInitialMessage().then((message) {
-      if (message != null) {
-        final routeFromMessage = message.data['route'];
-        log("$routeFromMessage, name: 'msg notifi");
+      if (message != null && message.data['channel_id'] != null) {
+        // final routeFromMessage = message.data['route'];
+        // log("$routeFromMessage, name: 'msg notifi");
         // Navigator.of(context).pushNamed(routeFromMessage);
 
         Get.to(
