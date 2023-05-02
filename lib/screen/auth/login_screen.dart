@@ -27,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   sendFirebaseOTP() async {
     try {
-      EasyLoading.show(status: 'loading...');
+      EasyLoading.show(status: 'Sending OTP...');
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: mobileNumber,
         timeout: const Duration(seconds: 120),

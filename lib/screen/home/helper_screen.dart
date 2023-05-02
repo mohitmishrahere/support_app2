@@ -122,7 +122,7 @@ class _HelperScreenState extends State<HelperScreen> {
                   onRefresh: onRefresh,
                   controller: refreshController,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(15.0, 8, 15, 8),
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 5),
                     child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: listnerDisplayModel?.data?.length ?? 0,
@@ -133,11 +133,11 @@ class _HelperScreenState extends State<HelperScreen> {
                             children: [
                               Container(
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(40),
+                                  borderRadius: BorderRadius.circular(10),
                                   color: colorWhite,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
+                                      color: Colors.grey.withOpacity(0.3),
                                       spreadRadius: 1,
                                       blurRadius: 7,
                                       offset: const Offset(0, 3),
@@ -160,11 +160,11 @@ class _HelperScreenState extends State<HelperScreen> {
                                     }
                                   },
                                   child: Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                        12.0, 12, 12, 12),
+                                    padding:
+                                        const EdgeInsets.fromLTRB(6.0, 6, 6, 6),
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(40),
+                                        borderRadius: BorderRadius.circular(10),
                                         color: colorWhite,
                                       ),
                                       child: Column(

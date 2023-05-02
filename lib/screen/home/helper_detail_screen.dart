@@ -964,7 +964,7 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                                         children: [
                                           const Icon(
                                             Icons.phone,
-                                            size: 20,
+                                            size: 15,
                                           ),
                                           const SizedBox(
                                             height: 3,
@@ -986,7 +986,7 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                                         children: const [
                                           Icon(
                                             Icons.chat,
-                                            size: 20,
+                                            size: 15,
                                           ),
                                           SizedBox(
                                             height: 3,
@@ -1052,7 +1052,7 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                                                 ?.substring(0, 1) ??
                                             '5',
                                         style: const TextStyle(
-                                          fontSize: 30,
+                                          fontSize: 25,
                                           color: colorBlack,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -1106,7 +1106,7 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                                             .toString() ??
                                         '0',
                                     style: const TextStyle(
-                                      fontSize: 30,
+                                      fontSize: 25,
                                       color: colorBlack,
                                       fontWeight: FontWeight.w700,
                                     ),

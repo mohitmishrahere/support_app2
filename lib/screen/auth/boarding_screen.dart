@@ -116,9 +116,10 @@ class OnBoardingState extends State<OnBoarding> {
                             );
                           }
                         },
+
                         child: Text(
                           currentPage + 1 == splashData.length
-                              ? 'Let\'s talk'
+                              ? 'Continue via Phone'
                               : 'Next',
                           style: const TextStyle(
                               fontSize: 18,
