@@ -112,7 +112,7 @@ class _HelperCategoriesState extends State<HelperCategories> {
 
                 RegistrationModel registerModel = await APIServices.registerAPI(
                   widget.mobileNumber.toString(),
-                  selectedTopic.toString(),
+                  // selectedTopic.toString(),
                   token.toString(),
                 );
 
@@ -162,7 +162,6 @@ class _HelperCategoriesState extends State<HelperCategories> {
                         builder: (context) => const ListnerHomeScreen(),
                       ),
                     );
-                   
                   }
                 } else {
                   //  EasyLoading.dismiss();

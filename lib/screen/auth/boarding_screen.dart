@@ -109,7 +109,7 @@ class OnBoardingState extends State<OnBoarding> {
                             curve: Curves.easeIn,
                           );
                           if (currentPage + 1 == splashData.length) {
-                            Navigator.push(
+                            Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => const LoginScreen()),

@@ -3,6 +3,7 @@
 class APIConstants {
   static const String BASE_URL = "https://support2heal.com/manage/";
   // static const String BASE_URL = "https://loof.in/manage/";
+  // static const String BASE_URL = "localhost/manage/";
 
   static const String API_BASE_URL = "${BASE_URL}api/";
 

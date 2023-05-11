@@ -146,10 +146,10 @@ class CallPageState extends State<CallPage> {
       return;
     }
 
-    log("value $value");
+    // log("value $value");
 
     int addminute = 1;
-    log(addminute.toString());
+    // log(addminute.toString());
     // EasyLoading.show(status: 'loading...');
     ChargeWalletModel chargeWalletModel =
         await APIServices.chargeWalletDeductionApi(
@@ -168,10 +168,10 @@ class CallPageState extends State<CallPage> {
         // await stopWatchTimer.dispose();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           EasyLoading.showInfo('Balance is Low, recharge your wallet');
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => const WalletScreen()));
+          // Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (BuildContext context) => const WalletScreen()));
           // _engine.muteLocalAudioStream(true);
           // _engine.muteAllRemoteAudioStreams(true);
           // showAddMoney(context);
@@ -202,7 +202,7 @@ class CallPageState extends State<CallPage> {
   Future<void> _dispose() async {
     // destroy sdk
     if (widget.callId != null) {
-      log({"call_id": widget.callId}.toString());
+      // log({"call_id": widget.callId}.toString());
       EasyLoading.show(
           status: 'Please wait, updating your wallet balance',
           maskType: EasyLoadingMaskType.clear);
@@ -220,10 +220,10 @@ class CallPageState extends State<CallPage> {
   @override
   void initState() {
     super.initState();
-    log(widget.callId.toString(), name: 'callIdFRomCALL');
+    // log(widget.callId.toString(), name: 'callIdFRomCALL');
     // initialize agora sdk
     initialize();
-    log(widget.listenerId, name: 'listenerId');
+    // log(widget.listenerId, name: 'listenerId');
   }
 
   Future<void> initialize() async {
@@ -309,7 +309,7 @@ class CallPageState extends State<CallPage> {
       "user_id": widget.uid.toString(),
       "token": widget.token,
     };
-    log(jsonEncode(formData));
+    // log(jsonEncode(formData));
     var response = await APIServices.handleRecording(
         formData, APIConstants.START_RECORDING);
     if (response["call_id"] != null) {
@@ -393,19 +393,10 @@ class CallPageState extends State<CallPage> {
                   children: [
                     Flexible(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 2,
-                          horizontal: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.yellowAccent,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          _infoStrings[index],
-                          style: const TextStyle(color: Colors.blueGrey),
-                        ),
-                      ),
+                          padding: const EdgeInsets.symmetric(
+                        vertical: 2,
+                        horizontal: 5,
+                      )),
                     )
                   ],
                 ),
@@ -421,13 +412,13 @@ class CallPageState extends State<CallPage> {
     await APIServices.handleRecording(
         {"call_id": widget.callId.toString()}, APIConstants.STOP_RECORDING);
     await APIServices.getBusyOnline('false', widget.listenerId);
-    log(widget.callId.toString(), name: "callId");
-    log(widget.listenerId, name: "listenerId");
+    // log(widget.callId.toString(), name: "callId");
+    // log(widget.listenerId, name: "listenerId");
 
     try {
       await stopWatchTimer.dispose();
     } catch (e) {
-      log(e.toString());
+      // log(e.toString());
     }
     if (mounted) {
       Navigator.pop(context);
@@ -466,7 +457,7 @@ class CallPageState extends State<CallPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: MediaQuery.of(context).size.width * 0.3,
+                    radius: MediaQuery.of(context).size.width * 0.2,
                     child: Icon(
                       Icons.person,
                       size: MediaQuery.of(context).size.width * 0.2,

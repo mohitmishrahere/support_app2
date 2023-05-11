@@ -49,9 +49,9 @@ class DrawerScreenState extends State<DrawerScreen> {
       log(e.toString());
     } finally {
       if (mounted) {
-      setState(() {
-        isProgressRunning = false;
-      });
+        setState(() {
+          isProgressRunning = false;
+        });
       }
     }
   }
@@ -371,38 +371,48 @@ class DrawerScreenState extends State<DrawerScreen> {
                       const SizedBox(
                         height: 15,
                       ),
-                      customRow(
-                        "Delete Account",
-                        const Icon(Icons.delete, color: colorBlack),
-                        () async {
-                          EasyLoading.show(status: 'loading...');
-                          DeleteModel? data =
-                              await APIServices.getDeleteAccount(
-                            SharedPreference.getValue(
-                                    PrefConstants.MERA_USER_ID.toString()) ??
-                                '',
-                          );
-                          if (data?.status == true) {
-                            log(
-                                SharedPreference.getValue(
-                                        PrefConstants.MERA_USER_ID) ??
-                                    '',
-                                name: 'Delete Account Success');
+                      Visibility(
+                          visible: SharedPreference.getValue(
+                                  PrefConstants.USER_TYPE) ==
+                              'user',
+                          child: Column(
+                            children: [
+                              customRow(
+                                "Delete Account",
+                                const Icon(Icons.delete, color: colorBlack),
+                                () async {
+                                  EasyLoading.show(status: 'loading...');
+                                  DeleteModel? data =
+                                      await APIServices.getDeleteAccount(
+                                    SharedPreference.getValue(PrefConstants
+                                            .MERA_USER_ID
+                                            .toString()) ??
+                                        '',
+                                  );
+                                  if (data?.status == true) {
+                                    log(
+                                        SharedPreference.getValue(
+                                                PrefConstants.MERA_USER_ID) ??
+                                            '',
+                                        name: 'Delete Account Success');
 
-                            EasyLoading.dismiss();
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            prefs.clear();
-                            await FirebaseAuth.instance.signOut();
-                            if (mounted) {
-                              Navigator.of(context).pushAndRemoveUntil(
-                                  MaterialPageRoute(
-                                      builder: (context) => const OnBoarding()),
-                                  (Route<dynamic> route) => false);
-                            }
-                          }
-                        },
-                      ),
+                                    EasyLoading.dismiss();
+                                    SharedPreferences prefs =
+                                        await SharedPreferences.getInstance();
+                                    prefs.clear();
+                                    await FirebaseAuth.instance.signOut();
+                                    if (mounted) {
+                                      Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const OnBoarding()),
+                                          (Route<dynamic> route) => false);
+                                    }
+                                  }
+                                },
+                              ),
+                            ],
+                          )),
                       const SizedBox(
                         height: 15,
                       ),
@@ -507,7 +517,7 @@ class DrawerScreenState extends State<DrawerScreen> {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-            backgroundColor: Colors.white,
+      backgroundColor: Colors.white,
       titlePadding: const EdgeInsets.all(0),
       contentPadding: const EdgeInsets.all(0),
       insetPadding: const EdgeInsets.all(0),

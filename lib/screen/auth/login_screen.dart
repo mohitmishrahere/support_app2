@@ -30,9 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
       EasyLoading.show(status: 'Sending OTP...');
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: mobileNumber,
-        timeout: const Duration(seconds: 120),
+        timeout: const Duration(seconds: 30),
         verificationCompleted: (PhoneAuthCredential credential) async {},
-        verificationFailed: (FirebaseAuthException e) {},
+        verificationFailed: (FirebaseAuthException e) {
+          log("verification failed", error: e);
+          EasyLoading.dismiss();
+        },
         codeSent: (String verificationId, int? resendToken) async {
           resendTokens = resendToken;
           // Update the UI - wait for the user to enter the SMS code

@@ -134,10 +134,10 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
         // await stopWatchTimer.dispose();
         EasyLoading.showInfo('Balance is Low, recharge your wallet');
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => const WalletScreen()));
+          // Navigator.pushReplacement(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (BuildContext context) => const WalletScreen()));
         });
       } else {
         // await stopWatchTimer.dispose();

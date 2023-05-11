@@ -44,13 +44,13 @@ import 'package:http/http.dart' as http;
 class APIServices {
   // Register API
   static Future<RegistrationModel> registerAPI(
-      String mobileNumber, String helpingCategory, String deviceToken) async {
+      String mobileNumber, String deviceToken) async {
     try {
       var response =
           await dio.post(APIConstants.API_BASE_URL + APIConstants.REGISTER_API,
               data: FormData.fromMap({
                 "mobile_no": mobileNumber,
-                "helping_category": helpingCategory,
+                // "helping_category": helpingCategory,
                 "device_token": deviceToken,
               }));
 

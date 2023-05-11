@@ -7,22 +7,32 @@ import 'dart:developer';
 
 // import 'package:alt_sms_autofill/alt_sms_autofill.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:support/api/api_constant.dart';
 import 'package:support/global/color.dart';
+import 'package:support/model/register_model.dart';
 import 'package:support/resusable_widget/appbar.dart';
 import 'package:support/screen/auth/helping_categories.dart';
+import 'package:support/screen/home/home_screen.dart';
+import 'package:support/screen/listner_app_ui/listner_homescreen.dart';
+import 'package:support/sharedpreference/sharedpreference.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../api/api_services.dart';
 import '../../global/all_images.dart';
 
 class OTPScreen extends StatefulWidget {
   final String mobileNumber;
   final String verificationId;
   final int? resendToken;
-  const OTPScreen({
+
+  OTPScreen({
     required this.mobileNumber,
     required this.verificationId,
     required this.resendToken,
@@ -36,11 +46,12 @@ class OTPScreen extends StatefulWidget {
 class _OTPScreenState extends State<OTPScreen> {
   TextEditingController otpController = TextEditingController();
   // String _comingSms = 'Unknown';
-
+  FocusNode _focusNode = FocusNode();
   final StopWatchTimer _stopWatchTimer = StopWatchTimer(
     mode: StopWatchMode.countDown,
-    presetMillisecond: StopWatchTimer.getMilliSecFromSecond(180),
+    presetMillisecond: StopWatchTimer.getMilliSecFromSecond(150),
   );
+  String? selectedTopic;
 
   // Future<void> initSmsListener() async {
   //   String? comingSms;
@@ -69,23 +80,86 @@ class _OTPScreenState extends State<OTPScreen> {
 
   verifyOtp() async {
     String otp = otpController.text.trim();
-
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: widget.verificationId, smsCode: otp);
+    EasyLoading.show(status: 'loading...');
     try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: widget.verificationId, smsCode: otp);
       UserCredential userCredential =
           await FirebaseAuth.instance.signInWithCredential(credential);
       if (userCredential.user != null) {
-        if (mounted) {
-          Navigator.push(
+        // if (mounted) {
+        //   Navigator.push(
+        //       context,
+        //       MaterialPageRoute(
+        //           builder: (context) => const ListnerHomeScreen()));
+        // }
+        print("OTP verification succeeded");
+
+        EasyLoading.show(status: 'loading...');
+        String? token = await FirebaseMessaging.instance.getToken();
+
+        RegistrationModel registerModel = await APIServices.registerAPI(
+          widget.mobileNumber.toString(),
+          // selectedTopic.toString(),
+          token.toString(),
+        );
+
+        if (registerModel.status == true) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString("userId", registerModel.data!.id.toString());
+          prefs.setString("userName", registerModel.data!.name!);
+
+          SharedPreference.setValue(PrefConstants.MOBILE_NUMBER,
+              registerModel.data?.mobileNo.toString());
+          SharedPreference.setValue(
+              PrefConstants.MERA_USER_ID, registerModel.data?.id.toString());
+          SharedPreference.setValue(
+              PrefConstants.USER_TYPE, registerModel.data?.userType.toString());
+
+          SharedPreference.setValue(
+              PrefConstants.LISTENER_NAME, registerModel.data?.name.toString());
+
+          SharedPreference.setValue(PrefConstants.LISTENER_IMAGE,
+              registerModel.data?.image.toString());
+          SharedPreference.setValue(PrefConstants.ONLINE,
+              registerModel.data?.onlineStatus == 1 ? true : false);
+
+          EasyLoading.dismiss();
+
+          if (registerModel.data?.userType == 'user') {
+            // if (!isListener) {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setBool("isListener", false);
+            print("UserScreen not listner");
+            Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                  builder: (context) => HelperCategories(
-                        mobileNumber: widget.mobileNumber,
-                      )));
+                builder: (context) => const HomeScreen(),
+              ),
+            );
+          } else {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setBool("isListener", true);
+
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ListnerHomeScreen(),
+              ),
+            );
+          }
+        } else {
+          EasyLoading.dismiss();
+          //  UtilsFlushBar.showDefaultSnackbar(
+          //     context, "Something went wrong, please try again");
+          log("Register API failed");
+          // _focusNode.dispose();
         }
       }
     } on FirebaseAuthException catch (e) {
+      EasyLoading.dismiss();
+      otpController.clear();
+      _focusNode.requestFocus();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Invalid OTP. Please try again."),
@@ -101,6 +175,10 @@ class _OTPScreenState extends State<OTPScreen> {
     _stopWatchTimer.onExecute.add(StopWatchExecute.start);
     // initSmsListener();
     // sendFirebaseOTP();
+    _focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(_focusNode);
+    });
   }
 
   @override
@@ -112,6 +190,7 @@ class _OTPScreenState extends State<OTPScreen> {
     } catch (e) {
       // (e);
     }
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -186,7 +265,8 @@ class _OTPScreenState extends State<OTPScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 50.0, right: 50),
                   child: PinCodeTextField(
-                    autoFocus: true,
+                    // autoFocus: true,
+                    focusNode: _focusNode,
                     appContext: context,
                     pastedTextStyle: TextStyle(
                       color: Colors.green.shade600,
@@ -251,7 +331,7 @@ class _OTPScreenState extends State<OTPScreen> {
                                 )
                               : InkWell(
                                   onTap: () {
-                                    _stopWatchTimer.setPresetSecondTime(180);
+                                    _stopWatchTimer.setPresetSecondTime(150);
                                     _stopWatchTimer.onExecute
                                         .add(StopWatchExecute.start);
                                     sendFirebaseOTP();
@@ -294,7 +374,7 @@ class _OTPScreenState extends State<OTPScreen> {
                           borderRadius: BorderRadius.circular(7),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         verifyOtp(); // uncoment this
 
                         // Navigator.push(
@@ -303,6 +383,7 @@ class _OTPScreenState extends State<OTPScreen> {
                         //         builder: (context) => HelperCategories(
                         //               mobileNumber: widget.mobileNumber,
                         //             )));
+                        //
                       },
                       child: SizedBox(
                         width: double.infinity,
@@ -398,7 +479,7 @@ class _OTPScreenState extends State<OTPScreen> {
           // Update the UI - wait for the user to enter the SMS code
           EasyLoading.dismiss();
 
-          Navigator.push(
+          Navigator.pushReplacement(
               context,
               MaterialPageRoute(
                   builder: (context) => OTPScreen(
