@@ -22,8 +22,8 @@ import 'screen/auth/boarding_screen.dart';
 import 'screen/listner_app_ui/listner_homescreen.dart';
 
 Future<void> backgroundHandler(RemoteMessage message) async {
-  log(message.data.toString(), name: 'main.dart');
-  log(message.notification!.title.toString(), name: 'main.dart notifi');
+  // log(message.data.toString(), name: 'main.dart');
+  // log(message.notification!.title.toString(), name: 'main.dart notifi');
 }
 
 Future<void> main() async {
@@ -65,7 +65,7 @@ class _MyAppState extends State<MyApp> {
 
     FirebaseMessaging.instance.getInitialMessage().then(
       (message) {
-        log("FirebaseMessaging.instance.getInitialMessage");
+        // log("FirebaseMessaging.instance.getInitialMessage");
         // if (message != null) {
         //   log("New Notification");
         //   // if (message.data['_id'] != null) {
@@ -99,14 +99,14 @@ class _MyAppState extends State<MyApp> {
     // 2. This method only call when App in forground it mean app must be opened
     FirebaseMessaging.onMessage.listen(
       (message) {
-        log("FirebaseMessaging.onMessage.listen");
+        // log("FirebaseMessaging.onMessage.listen");
         if (message.notification != null
             //  &&
             //     message.data['channel_id'] != null
             ) {
-          log(message.notification!.title.toString());
-          log(message.notification!.body.toString());
-          log("message.data11 ${message.data}");
+          // log(message.notification!.title.toString());
+          // log(message.notification!.body.toString());
+          // log("message.data11 ${message.data}");
           // LocalNotificationService.display(message);
 
           // Get.to(
@@ -124,14 +124,14 @@ class _MyAppState extends State<MyApp> {
     // 3. This method only call when App in background and not terminated(not closed)
     FirebaseMessaging.onMessageOpenedApp.listen(
       (message) {
-        log("FirebaseMessaging.onMessageOpenedApp.listen");
+        // log("FirebaseMessaging.onMessageOpenedApp.listen");
         if (message.notification != null
             //  &&
             //     message.data['channel_id'] != null
             ) {
-          log(message.notification?.title.toString() ?? '');
-          log(message.notification?.body.toString() ?? '');
-          log("message.data22 ${message.data['_id']}");
+          // log(message.notification?.title.toString() ?? '');
+          // log(message.notification?.body.toString() ?? '');
+          // log("message.data22 ${message.data['_id']}");
 
           // Get.to(
           //   () => IncomingCallScreen(

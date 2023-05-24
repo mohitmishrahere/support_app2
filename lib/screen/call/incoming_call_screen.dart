@@ -8,6 +8,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:support/api/api_services.dart';
 import 'package:support/screen/call/call.dart';
 import 'package:support/sharedpreference/sharedpreference.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 import '../../api/api_constant.dart';
 import '../../global/utils.dart';
@@ -38,10 +39,14 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
   Timer? timer;
   int totalSecond = 0;
   bool canPop = false;
+  bool isPageEnabled = true;
   int callIdfromAPI = 0;
   GetCallIdModel? callId;
 
   Future<void> onCallJoin() async {
+    onCallActionTaken();
+    FlutterRingtonePlayer.stop();
+    EasyLoading.show(status: 'Connecting to the user, please wait . . .');
     // await for camera and mic permissions before pushing video page
     await AppUtils.handleCameraAndMic(Permission.camera);
     await AppUtils.handleCameraAndMic(Permission.microphone);
@@ -80,16 +85,16 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
     if (callId?.status == true) {
       callIdfromAPI = callId?.data?.id ?? 0;
     }
-    log(callIdfromAPI.toString(), name: 'callIdfromAPI');
+    // log(callIdfromAPI.toString(), name: 'callIdfromAPI');
   }
 
   @override
   void initState() {
     super.initState();
     getCallId();
-    log(SharedPreference.getValue(PrefConstants.MERA_USER_ID),
-        name: 'merauserID incomingcall');
-    FlutterRingtonePlayer.playRingtone(asAlarm: true, looping: true);
+    // log(SharedPreference.getValue(PrefConstants.MERA_USER_ID),
+    //     name: 'merauserID incomingcall');
+    FlutterRingtonePlayer.playRingtone(looping: true);
     // player.setUrl("asset:assets/sound/ringtone.mp3");
     //  player.play();
     timer =
@@ -102,7 +107,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
       closeCall();
       FlutterRingtonePlayer.stop();
     }
-    log(totalSecond.toString());
+    // log(totalSecond.toString());
     var data = await APIServices.getAgoraChannelInfo(widget.channelId);
     if (data.success == true) {
       if (data.data!.broadcasters!.isEmpty) {
@@ -117,8 +122,30 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
         'false', SharedPreference.getValue(PrefConstants.MERA_USER_ID));
     if (mounted) {
       if (Navigator.canPop(context)) {
+        log('closeCall');
         Navigator.pop(context);
       }
+    }
+  }
+
+  void onCallActionTaken() {
+    setState(() {
+      isPageEnabled = false;
+    });
+  }
+
+  void _onCallEnd(BuildContext context) async {
+    onCallActionTaken();
+    FlutterRingtonePlayer.stop();
+    EasyLoading.show(status: 'Disconnecting the call, please wait . . .');
+
+    await APIServices.handleRecording(
+        {"call_id": callIdfromAPI.toString()}, APIConstants.STOP_RECORDING);
+    await APIServices.getBusyOnline(
+        'false', SharedPreference.getValue(PrefConstants.MERA_USER_ID));
+    if (mounted) {
+      EasyLoading.dismiss();
+      Navigator.pop(context);
     }
   }
 
@@ -183,46 +210,33 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> {
                   style: TextStyle(fontSize: 16.0, color: Colors.white),
                 ),
                 const SizedBox(height: 50.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    TextButton.icon(
-                      onPressed: () async {
-                        onCallJoin();
-                        FlutterRingtonePlayer.stop();
-                      },
-                      label: const Text(
-                        "Answer",
-                        style: TextStyle(color: Colors.white),
+                if (isPageEnabled)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () async {
+                          onCallJoin();
+                        },
+                        label: const Text(
+                          "Answer",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        icon: const Icon(Icons.phone, color: Colors.green),
                       ),
-                      icon: const Icon(Icons.phone, color: Colors.green),
-                    ),
-                    const SizedBox(width: 25.0),
-                    TextButton.icon(
-                      onPressed: () async {
-                        await APIServices.handleRecording(
-                            {"call_id": callIdfromAPI.toString()},
-                            APIConstants.STOP_RECORDING);
-                        await APIServices.getBusyOnline(
-                            'false',
-                            SharedPreference.getValue(
-                                PrefConstants.MERA_USER_ID));
-
-                        if (mounted) {
-                          Navigator.pop(context);
-                        }
-                        FlutterRingtonePlayer.stop();
-                      },
-                      label: const Text("Decline",
-                          style: TextStyle(color: Colors.white)),
-                      icon: const Icon(
-                        Icons.call_end,
-                        color: Colors.red,
+                      const SizedBox(width: 25.0),
+                      TextButton.icon(
+                        onPressed: () => _onCallEnd(context),
+                        label: const Text("Decline",
+                            style: TextStyle(color: Colors.white)),
+                        icon: const Icon(
+                          Icons.call_end,
+                          color: Colors.red,
+                        ),
                       ),
-                    ),
-                  ],
-                )
+                    ],
+                  )
               ],
             ),
           )),

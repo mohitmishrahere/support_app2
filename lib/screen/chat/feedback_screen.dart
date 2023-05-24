@@ -44,7 +44,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Text("Enter your feedback",
-                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
+                style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold)),
             const SizedBox(height: 100),
             RatingBar.builder(
               initialRating: 5,

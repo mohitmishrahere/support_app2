@@ -11,16 +11,16 @@ class OnboardingModel {
 class OnboardingData {
   static final List<OnboardingModel> onboardingData = [
     OnboardingModel(
-      title: "Let's go to a safe place",
-      image: "assets/images/boarding4.png",
-      subtitle:
-          "Gratitude is the most heartwarming\nfeeling. Praise someone in the\neasiest way possible",
-    ),
-    OnboardingModel(
       title: "Anonymous Calls & Chats",
       image: "assets/images/boarding2.jpg",
       subtitle:
           "Browse kudos list. See what your\ncommunity is up to and\nget inspired",
+    ),
+    OnboardingModel(
+      title: "Let's go to a safe place",
+      image: "assets/images/boarding4.png",
+      subtitle:
+          "Gratitude is the most heartwarming\nfeeling. Praise someone in the\neasiest way possible",
     ),
     OnboardingModel(
       title: "Judgement free place",

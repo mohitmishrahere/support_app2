@@ -55,7 +55,7 @@ class APIServices {
               }));
 
       // log("${response.data}", name: 'Before registerAPI');
-      log(response.realUri.path);
+      // log(response.realUri.path);
       if (response.statusCode == 200) {
         return RegistrationModel.fromJson(response.data);
       } else {
@@ -64,7 +64,7 @@ class APIServices {
             status: false, message: "Something went wrong", data: null);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
       // log("Api call exception");
       return RegistrationModel(
           status: false, message: "Something went wrong", data: null);
@@ -87,7 +87,7 @@ class APIServices {
             status: false, message: "Something went wrong", data: null);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
       // log("Api call exception");
       return ListnerDisplayModel(
           status: false, message: "Something went wrong", data: null);
@@ -106,7 +106,7 @@ class APIServices {
       if (response.statusCode == 200) {
         return RazorPayOrderIdModel.fromJson(response.data);
       } else {
-        log("Response data rather than 200");
+        // log("Response data rather than 200");
         return {
           "status": "false",
           "message": "Something went wrong",
@@ -137,10 +137,10 @@ class APIServices {
         "busy_status": onlineStatus,
       });
       if (response.statusCode == 200) {
-        log("${response.data}, name: 'getBusyOnline");
+        // log("${response.data}, name: 'getBusyOnline");
         return BusyOnlineModel.fromJson(response.data);
       } else {
-        log("Response data rather than 200");
+        // log("Response data rather than 200");
         return {
           "status": "false",
           "message": "Something went wrong",
@@ -243,7 +243,7 @@ class APIServices {
         return data;
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -257,7 +257,7 @@ class APIServices {
         return response.data["wallet_amount"][0]["wallet_amount"].toString();
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -302,7 +302,7 @@ class APIServices {
         return AddMoneyIntoWalletModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -319,10 +319,10 @@ class APIServices {
         var data = DeleteModel.fromJson(response.data);
         return data;
       } else {
-        log("Response data rather than 200");
+        // log("Response data rather than 200");
       }
     } catch (e) {
-      log(e.toString());
+      // log(e.toString());
       rethrow;
     }
     return null;
@@ -346,10 +346,10 @@ class APIServices {
         var data = NickNameModel.fromJson(response.data);
         return data;
       } else {
-        log("Response data rather than 200");
+        // log("Response data rather than 200");
       }
     } catch (e) {
-      log(e.toString());
+      // log(e.toString());
       rethrow;
     }
     return null;
@@ -365,12 +365,12 @@ class APIServices {
       if (response.statusCode == 200) {
         return NickNameGETModel.fromJson(response.data);
       } else {
-        log("Response data rather than 200");
+        // log("Response data rather than 200");
         return NickNameGETModel(
             status: false, message: "Something went wrong", data: null);
       }
     } catch (e) {
-      log('$e');
+      // log('$e');
       return NickNameGETModel(
           status: false, message: "Something went wrong", data: null);
     }
@@ -394,7 +394,7 @@ class APIServices {
             allNotifications: null);
       }
     } catch (e) {
-      log('$e');
+      // log('$e');
       return ChatNotificationModel(
           status: false,
           message: "Something went wrong",
@@ -416,7 +416,7 @@ class APIServices {
         // return ReadNotificationModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
   }
 
@@ -438,7 +438,7 @@ class APIServices {
         return ChargeWalletModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
   }
 
@@ -462,7 +462,7 @@ class APIServices {
         return WithdrawalModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
   }
 
@@ -477,7 +477,7 @@ class APIServices {
         return ToggleButtonONOFFModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -494,7 +494,7 @@ class APIServices {
         return ToggleButtonONOFFModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -514,7 +514,7 @@ class APIServices {
         return ListnerAvaiabilityModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -530,13 +530,13 @@ class APIServices {
             "from_id": userId,
             "to_id": toId,
           }));
-      log(userId);
-      log(toId);
+      // log(userId);
+      // log(toId);
       if (response.statusCode == 200) {
         return BellIconNotifyModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -557,7 +557,7 @@ class APIServices {
         return ReportModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -579,7 +579,7 @@ class APIServices {
         return FeedBackModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -600,7 +600,7 @@ class APIServices {
         return BlockUserModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -660,12 +660,12 @@ class APIServices {
         headers: headers);
 
     if (response.statusCode == 200) {
-      log("sent notification with data: ${response.body}");
-      log("true");
+      // log("sent notification with data: ${response.body}");
+      // log("true");
     } else {
-      log("failed notification with data: ${response.body}");
+      // log("failed notification with data: ${response.body}");
 
-      log("false");
+      // log("false");
     }
   }
 
@@ -718,12 +718,12 @@ class APIServices {
         headers: headers);
 
     if (response.statusCode == 200) {
-      log("sent notification with data: ${response.body}");
-      log("true");
+      // log("sent notification with data: ${response.body}");
+      // log("true");
     } else {
-      log("failed notification with data: ${response.body}");
+      // log("failed notification with data: ${response.body}");
 
-      log("false");
+      // log("false");
     }
   }
 
@@ -742,10 +742,10 @@ class APIServices {
         });
 
     if (response.statusCode == 200) {
-      log(response.body);
+      // log(response.body);
       return agoraRtcUsersJoinChannelStatsModelFromJson(response.body);
     } else {
-      log(response.body);
+      // log(response.body);
 
       throw Exception('Failed to get right response.');
     }
@@ -761,10 +761,10 @@ class APIServices {
             body: formData);
 
     if (response.statusCode == 200) {
-      log(response.body, name: 'start & stop recording');
+      // log(response.body, name: 'start & stop recording');
       return jsonDecode(response.body);
     } else {
-      log(response.body);
+      // log(response.body);
       throw Exception('Failed to get right response.');
     }
   }
@@ -789,11 +789,11 @@ class APIServices {
       );
 
       if (response.statusCode == 200) {
-        log(response.body.toString(), name: 'send chat id');
+        // log(response.body.toString(), name: 'send chat id');
         return SendChatIDModel.fromJson(jsonDecode(response.body));
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -807,13 +807,13 @@ class APIServices {
               data: FormData.fromMap({
                 "chat_id": chatId,
               }));
-      log(chatId.toString(), name: 'chat id, chat end api');
+      // log(chatId.toString(), name: 'chat id, chat end api');
       if (response.statusCode == 200) {
-        log(response.data.toString());
+        // log(response.data.toString());
         return GetChatEndModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return GetChatEndModel(status: false, message: "Something went wrong");
   }
@@ -833,7 +833,7 @@ class APIServices {
         return APIGetChatEndModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return APIGetChatEndModel(
         status: false, message: "Something went wrong", data: null);
@@ -856,7 +856,7 @@ class APIServices {
     } catch (e) {
       log("$e");
     }
-    return null;
+    // return null;
   }
 
   // Listner Chat Request
@@ -871,7 +871,7 @@ class APIServices {
         return ListnerChatRequest.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -891,7 +891,7 @@ class APIServices {
         return UpdateChatRequestModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -907,7 +907,7 @@ class APIServices {
         return GetChatRequestByUserModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -927,7 +927,7 @@ class APIServices {
         return GetCallIdModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -943,7 +943,7 @@ class APIServices {
         return SupportChatModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
   }
@@ -958,12 +958,22 @@ class APIServices {
           data: FormData.fromMap({"message_id": messageId}));
 
       if (response.statusCode == 200) {
-        log(response.toString());
+        // log(response.toString());
         return SupportChatModel.fromJson(response.data);
       }
     } catch (e) {
-      log("$e");
+      // log("$e");
     }
     return null;
+  }
+
+  static Future<dynamic> updateCallChatLogs(
+      userid, listnerid, event, type) async {
+    dio.post(APIConstants.API_BASE_URL + APIConstants.CALL_CHAT_LOGS, data: {
+      "user_id": userid,
+      "listner_id": listnerid,
+      "event": event,
+      "type": type
+    });
   }
 }

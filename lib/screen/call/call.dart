@@ -59,6 +59,7 @@ class CallPageState extends State<CallPage> {
   late RtcEngine _engine;
   bool isListener = false;
   bool isFirstCall = false;
+  bool isPageEnabled = true;
   String callRecordingId = "";
   final sessionId = getRandomString(16);
 
@@ -76,7 +77,7 @@ class CallPageState extends State<CallPage> {
   void ringingTime() {
     timer = Timer.periodic(const Duration(seconds: 30), (Timer t) {
       if (duration.inSeconds <= 0) {
-        _onCallEnd(context);
+        _onCallEnd(context, 3);
       }
     });
   }
@@ -125,7 +126,7 @@ class CallPageState extends State<CallPage> {
   Widget buildTimeCard({required String time, required String header}) => Text(
         time,
         style: const TextStyle(
-            fontWeight: FontWeight.bold, color: Colors.white, fontSize: 16),
+            fontWeight: FontWeight.bold, color: Colors.black87, fontSize: 18),
       );
 
   void amountKaatLo(value) async {
@@ -223,6 +224,7 @@ class CallPageState extends State<CallPage> {
     // log(widget.callId.toString(), name: 'callIdFRomCALL');
     // initialize agora sdk
     initialize();
+    EasyLoading.dismiss();
     // log(widget.listenerId, name: 'listenerId');
   }
 
@@ -273,17 +275,16 @@ class CallPageState extends State<CallPage> {
       setState(() {
         _infoStrings.add('onLeaveChannel');
         _users.clear();
+        _onCallEnd(context, 2);
       });
     }, userJoined: (uid, elapsed) {
       player.stop();
-      startTimer();
       setState(() {
         final info = 'userJoined: $uid';
         _infoStrings.add(info);
         _users.add(uid);
       });
       if (widget.incoming) {
-        log("incoming call recording");
         startrecording();
       }
     }, userOffline: (uid, elapsed) {
@@ -291,7 +292,7 @@ class CallPageState extends State<CallPage> {
         final info = 'userOffline: $uid';
         _infoStrings.add(info);
         _users.remove(uid);
-        _onCallEnd(context);
+        _onCallEnd(context, 2);
       });
     }, firstRemoteVideoFrame: (uid, width, height, elapsed) {
       setState(() {
@@ -315,6 +316,8 @@ class CallPageState extends State<CallPage> {
     if (response["call_id"] != null) {
       callRecordingId = response["call_id"].toString();
     }
+
+    startTimer();
   }
 
   /// Toolbar layout
@@ -338,7 +341,7 @@ class CallPageState extends State<CallPage> {
             ),
           ),
           RawMaterialButton(
-            onPressed: () => _onCallEnd(context),
+            onPressed: () => _onCallEnd(context, 1),
             shape: const CircleBorder(),
             elevation: 2.0,
             fillColor: Colors.redAccent,
@@ -408,20 +411,37 @@ class CallPageState extends State<CallPage> {
     );
   }
 
-  void _onCallEnd(BuildContext context) async {
+  void _onCallEnd(BuildContext context, type) async {
+    stopWatchTimer.dispose();
+    onCallDisconnect();
+    if (type == 3) {
+      APIServices.updateCallChatLogs(
+          SharedPreference.getValue(PrefConstants.MERA_USER_ID),
+          widget.listenerId,
+          type,
+          'call');
+      EasyLoading.show(
+          status: 'Listner is not responding, please try again later');
+    } else if (type == 2) {
+      EasyLoading.show(status: 'User disconnected the call !');
+    } else {
+      EasyLoading.show(status: 'Disconnecting the call, please wait . . .');
+    }
+    player.stop();
     await APIServices.handleRecording(
         {"call_id": widget.callId.toString()}, APIConstants.STOP_RECORDING);
     await APIServices.getBusyOnline('false', widget.listenerId);
     // log(widget.callId.toString(), name: "callId");
     // log(widget.listenerId, name: "listenerId");
 
-    try {
-      await stopWatchTimer.dispose();
-    } catch (e) {
-      // log(e.toString());
-    }
+    // try {
+    //   await stopWatchTimer.dispose();
+    // } catch (e) {
+    //   // log(e.toString());
+    // }
     if (mounted) {
       Navigator.pop(context);
+      EasyLoading.dismiss();
     }
   }
 
@@ -430,6 +450,12 @@ class CallPageState extends State<CallPage> {
       muted = !muted;
     });
     _engine.muteLocalAudioStream(muted);
+  }
+
+  void onCallDisconnect() {
+    setState(() {
+      isPageEnabled = false;
+    });
   }
 
   void onToggleSpeaker(BuildContext context) {
@@ -442,41 +468,64 @@ class CallPageState extends State<CallPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: duration.inSeconds <= 0 ? const Text('Ringing...') : buildTime(),
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-      ),
-      backgroundColor: Colors.black,
-      body: Center(
+      // appBar: AppBar(
+      //   title: duration.inSeconds <= 0 ? const Text('Ringing...') : buildTime(),
+      //   centerTitle: true,
+      //   automaticallyImplyLeading: false,
+      // ),
+      backgroundColor: Colors.white,
+      body: SafeArea(
         child: Stack(
           children: <Widget>[
+            SafeArea(
+                child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                  SizedBox(height: 80.0),
+                  Icon(
+                    Icons.lock_rounded,
+                    size: 18,
+                  ),
+                  Text(
+                    'End-to-end encrypted',
+                    style: TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 14.0),
+                  ),
+                ])),
             Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 120.0),
                   CircleAvatar(
-                    radius: MediaQuery.of(context).size.width * 0.2,
+                    radius: MediaQuery.of(context).size.width * 0.1,
                     child: Icon(
                       Icons.person,
-                      size: MediaQuery.of(context).size.width * 0.2,
+                      size: MediaQuery.of(context).size.width * 0.1,
                     ),
                   ),
-                  const SizedBox(height: 50.0),
+                  const SizedBox(height: 20.0),
                   Text(
                     widget.userName,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 30.0),
+                        color: Colors.black,
+                        fontWeight: FontWeight.normal,
+                        fontSize: 24.0),
                   ),
+                  const SizedBox(height: 30.0),
+                  duration.inSeconds <= 0
+                      ? const Text('Ringing...')
+                      : buildTime()
                 ],
               ),
             ),
             // _viewRows(),
             if (kDebugMode) _panel(),
-            _toolbar(),
+            if (isPageEnabled) _toolbar(),
           ],
         ),
       ),

@@ -2,7 +2,7 @@
 
 class APIConstants {
   static const String BASE_URL = "https://support2heal.com/manage/";
-  // static const String BASE_URL = "https://loof.in/manage/";
+  // static const String BASE_URL = "https://api.loof.in/manage/";
   // static const String BASE_URL = "localhost/manage/";
 
   static const String API_BASE_URL = "${BASE_URL}api/";
@@ -54,6 +54,7 @@ class APIConstants {
   static const String getCallID = "get_call";
   static const String getAdminMessageFromSupport = "get_admin_message/";
   static const String readAdminMessageFromSupport = "admin_message_read";
+  static const String CALL_CHAT_LOGS = "call_chat_logs";
 }
 
 class PrefConstants {

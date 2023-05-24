@@ -873,7 +873,7 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
                         visible: isListener,
                         child: const Center(
                             child: Text(
-                          'Report and Block',
+                          'Block',
                           style: TextStyle(
                             fontSize: 12.0,
                             fontWeight: FontWeight.w700,
@@ -889,9 +889,133 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
                         visible: isListener,
                         child: const Center(
                             child: Text(
-                          'Add Nick Name',
+                          'Nick Name',
                           style: TextStyle(
                             fontSize: 12.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ))),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.white,
+                            title: const Text('Are you sure?'),
+                            content:
+                                const Text('You want to close this session?'),
+                            actions: [
+                              if (isListener) ...{
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      _firestore
+                                          .collection('chatroom')
+                                          .doc(docID)
+                                          .update({'is_listner_online': false});
+
+                                      changeTypingStatus(false);
+                                      // int getidincrease = getchatId! + 1;
+
+                                      EasyLoading.show(status: 'loading...');
+
+                                      await stopWatchTimer.dispose();
+                                      await APIServices.getBusyOnline(
+                                        'false',
+                                        SharedPreference.getValue(
+                                            PrefConstants.MERA_USER_ID),
+                                      );
+                                      // _timer?.cancel();
+
+                                      GetChatEndModel? getChatEndModel =
+                                          await APIServices.chatEndAPI(
+                                              chatIdAssignToListener ?? 0);
+
+                                      if (getChatEndModel?.status == true) {
+                                        // _timer?.cancel();
+                                        EasyLoading.dismiss();
+
+                                        if (mounted) {
+                                          Navigator.of(context).pushAndRemoveUntil(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const ListnerHomeScreen()),
+                                              (Route<dynamic> route) => false);
+                                        }
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Yes',
+                                    )),
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      'No, Continue',
+                                    )),
+                              } else ...{
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      _firestore
+                                          .collection('chatroom')
+                                          .doc(docID)
+                                          .update({'is_user_online': false});
+                                      changeTypingStatus(false);
+
+                                      EasyLoading.show(status: 'loading...');
+
+                                      await stopWatchTimer.dispose();
+                                      await APIServices.getBusyOnline(
+                                        'false',
+                                        SharedPreference.getValue(
+                                            PrefConstants.MERA_USER_ID),
+                                      );
+                                      // _timer?.cancel();
+
+                                      GetChatEndModel? getChatEndModel =
+                                          await APIServices.chatEndAPI(
+                                              widget.chatId ?? 0);
+
+                                      if (getChatEndModel?.status == true) {
+                                        // _timer?.cancel();
+                                        // Navigator.pop(context);
+                                        EasyLoading.dismiss();
+                                        if (mounted) {
+                                          Navigator.of(context).pushReplacement(
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      FeedbackScreen(
+                                                          listenerId: widget
+                                                              .listenerId)));
+                                        }
+                                      }
+                                    },
+                                    child: const Text(
+                                      'Yes',
+                                    )),
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      'No, Continue',
+                                    )),
+                              }
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    child: Visibility(
+                        visible: !isListener,
+                        child: const Center(
+                            child: Text(
+                          'End Call',
+                          style: TextStyle(
+                            fontSize: 16.0,
                             fontWeight: FontWeight.w700,
                           ),
                         ))),
@@ -1264,22 +1388,22 @@ class ChatRoomScreenState extends State<ChatRoomScreen>
               } else ...{
                 buildReply(),
                 Container(
-                  height: size.height / 10.0,
+                  height: size.height / 9.0,
                   width: size.width,
                   alignment: Alignment.center,
                   child: SizedBox(
-                    height: size.height / 12,
+                    height: size.height / 11,
                     width: size.width / 1.1,
                     child: Row(
                       children: [
                         SizedBox(
-                          height: size.height / 12,
+                          height: size.height / 10,
                           width: size.width / 1.32,
                           child: TextField(
                             autofocus: true,
                             controller: _chatController,
                             decoration: const InputDecoration(
-                              hintText: 'Type here',
+                              hintText: 'Message',
                             ),
                             onChanged: (value) {
                               if (value.isNotEmpty) {
