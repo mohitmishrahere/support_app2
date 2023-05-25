@@ -279,6 +279,7 @@ class CallPageState extends State<CallPage> {
       });
     }, userJoined: (uid, elapsed) {
       player.stop();
+      startTimer();
       setState(() {
         final info = 'userJoined: $uid';
         _infoStrings.add(info);
@@ -316,8 +317,6 @@ class CallPageState extends State<CallPage> {
     if (response["call_id"] != null) {
       callRecordingId = response["call_id"].toString();
     }
-
-    startTimer();
   }
 
   /// Toolbar layout

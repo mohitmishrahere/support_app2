@@ -39,7 +39,7 @@ class ChatRequestPending extends StatefulWidget {
 class _ChatRequestPendingState extends State<ChatRequestPending>
     with TickerProviderStateMixin {
   AnimationController? controller;
-  int levelClock = 120;
+  int levelClock = 30;
   GetChatRequestByUserModel? getChatRequestByUserModel;
   Timer? timer;
   SendChatIDModel? chatIdModel;
@@ -141,7 +141,6 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
                         userId: widget.userId,
                         userName: widget.userName,
                         chatId: chatIdModel?.data?.id,
-                        
                       )),
               (Route<dynamic> route) => false);
         }
@@ -195,14 +194,19 @@ class _ChatRequestPendingState extends State<ChatRequestPending>
               children: [
                 Center(
                   child: Column(
-                    children: const [
-                      Text(
+                    children: [
+                      Image.asset(
+                        'assets/images/logo.png',
+                        width: MediaQuery.of(context).size.width * 0.4,
+                      ),
+                      const SizedBox(height: 40.0),
+                      const Text(
                         'Connecting.... ',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 18),
                       ),
-                      SizedBox(height: 20),
-                      Text(
+                      const SizedBox(height: 20),
+                      const Text(
                         'You can Chat only after Listener Approve',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 18),
