@@ -977,3 +977,35 @@ class APIServices {
     });
   }
 }
+
+Future<int> fetchStatus() async {
+  int onlineStatus = 0;
+  String apiUrl = 'https://api.loof.in/manage/api/listner/3248';
+  try {
+    http.Response response = await http.get(Uri.parse(apiUrl));
+
+    if (response.statusCode == 200) {
+      String responseData = response.body;
+
+      // print(responseData);
+      Map<String, dynamic> res = jsonDecode(responseData);
+      List<dynamic> dataList = res['data'];
+      if (dataList.isNotEmpty) {
+        Map<String, dynamic> user = dataList[0];
+
+        onlineStatus = user['online_status'];
+
+        // print('Online Status: $onlineStatus');
+      }
+    } else {
+      // API request failed
+      print('Request failed with status: ${response.statusCode}');
+      onlineStatus = 0;
+    }
+  } catch (error) {
+    // Error occurred during API request
+    print('Error: $error');
+    onlineStatus = 0;
+  }
+  return onlineStatus;
+}

@@ -56,6 +56,7 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
   double? width = 150;
   double? height = 150;
   var response;
+  late int online_stat;
 
   imagedata(width, height) {
     return CachedNetworkImage(
@@ -250,12 +251,22 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20))),
                       onPressed: () async {
+                        online_stat = await fetchStatus();
                         if (double.tryParse(SharedPreference.getValue(
                                 PrefConstants.WALLET_AMOUNT))! <=
                             5.0) {
                           showLowBalancetDialog(context);
+                          // if (online_stat == 1) {
+                          //   onCallPlaced();
+                          // } else {
+                          //   print("User is offline");
+                          // }
                         } else {
-                          onCallPlaced();
+                          if (online_stat == 1) {
+                            onCallPlaced();
+                          } else {
+                            print("User is offline");
+                          }
                         }
                       },
                       child: const Padding(
