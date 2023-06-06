@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:support/api/api_services.dart';
 import 'package:support/global/color.dart';
@@ -22,8 +23,9 @@ import 'listner_inbox.dart';
 import 'listner_wallet.dart/listner_wallet.dart';
 
 class ListnerHomeScreen extends StatefulWidget {
-  const ListnerHomeScreen({Key? key}) : super(key: key);
-
+  const ListnerHomeScreen({
+    Key? key,
+  }) : super(key: key);
   @override
   State<ListnerHomeScreen> createState() => _ListnerHomeScreenState();
 }
@@ -36,7 +38,6 @@ class _ListnerHomeScreenState extends State<ListnerHomeScreen>
   bool status = false;
   bool isListener = false, isProgressRunning = false;
   ListnerAvaiabilityModel? listnerAvaiabilityModel;
-
   ListnerChatRequest? getListnerRequest = ListnerChatRequest();
 
   Timer? _timer;
@@ -159,24 +160,32 @@ class _ListnerHomeScreenState extends State<ListnerHomeScreen>
                   onChanged: (val) async {
                     // val = true;
                     EasyLoading.show(status: 'loading...');
-                    ToggleButtonONOFFModel? toggleButtonONOFFModel =
-                        await APIServices.toggleButtonONOFFModel(
-                      SharedPreference.getValue(PrefConstants.MERA_USER_ID),
-                    );
-                    if (toggleButtonONOFFModel?.status == true) {
+                    int onlineStatus = await fetchStatus(
+                        SharedPreference.getValue(PrefConstants.MERA_USER_ID)
+                            .toString());
+                    if (onlineStatus == 1) {
                       EasyLoading.dismiss();
-                      if (toggleButtonONOFFModel?.data?.onlineStatus == '1') {
-                        EasyLoading.showSuccess('Online');
-                      } else if (toggleButtonONOFFModel?.data?.onlineStatus ==
-                          '0') {
-                        EasyLoading.showSuccess('Offline');
-                      }
+                      EasyLoading.showSuccess('Online');
+                    } else if (onlineStatus == 0) {
+                      EasyLoading.dismiss();
+                      EasyLoading.showSuccess('Offline');
                     }
+                    // ToggleButtonONOFFModel? toggleButtonONOFFModel =
+                    //     await APIServices.toggleButtonONOFFModel(
+                    //   SharedPreference.getValue(PrefConstants.MERA_USER_ID),
+                    // );
+
+                    // if (toggleButtonONOFFModel?.status == true) {
+                    //   EasyLoading.dismiss();
+                    //   if (toggleButtonONOFFModel?.data?.onlineStatus == '0') {
+                    //   } else if (toggleButtonONOFFModel?.data?.onlineStatus ==
+                    //       '1') {}
+                    // }
                     setState(() {
                       status = val;
                     });
-                    SharedPreference.setValue(PrefConstants.ONLINE, val);
-                    log('clock');
+                    // SharedPreference.setValue(PrefConstants.ONLINE, val);
+                    // log('clock');
                     EasyLoading.dismiss();
                   }),
               const SizedBox(width: 20),
