@@ -978,9 +978,9 @@ class APIServices {
   }
 }
 
-Future<int> fetchStatus() async {
+Future<int> fetchStatus(String value) async {
   int onlineStatus = 0;
-  String apiUrl = 'https://api.loof.in/manage/api/listner/3248';
+  String apiUrl = 'https://api.loof.in/manage/api/listner/$value';
   try {
     http.Response response = await http.get(Uri.parse(apiUrl));
 

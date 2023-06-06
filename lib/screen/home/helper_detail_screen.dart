@@ -251,10 +251,14 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20))),
                       onPressed: () async {
-                        online_stat = await fetchStatus();
+                        online_stat = await fetchStatus(
+                            SharedPreference.getValue(
+                                    PrefConstants.MERA_USER_ID)
+                                .toString());
                         if (double.tryParse(SharedPreference.getValue(
                                 PrefConstants.WALLET_AMOUNT))! <=
                             5.0) {
+                          print(online_stat);
                           showLowBalancetDialog(context);
                           // if (online_stat == 1) {
                           //   onCallPlaced();
@@ -265,7 +269,9 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                           if (online_stat == 1) {
                             onCallPlaced();
                           } else {
-                            print("User is offline");
+                            EasyLoading.show(status: "Oops User is Offline");
+                            Navigator.pop(context);
+                            EasyLoading.dismiss();
                           }
                         }
                       },
@@ -296,19 +302,27 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20))),
                       onPressed: () async {
+                        online_stat = await fetchStatus(
+                            SharedPreference.getValue(
+                                    PrefConstants.MERA_USER_ID)
+                                .toString());
                         if (double.tryParse(SharedPreference.getValue(
                                 PrefConstants.WALLET_AMOUNT))! <=
                             5.0) {
                           showLowBalancetDialog(context);
                         } else {
-                          showChatRequestDialog(
-                              context,
-                              SharedPreference.getValue(
-                                  PrefConstants.MERA_USER_ID),
-                              widget.listnerDisplayModel!.id.toString(),
-                              widget.listnerDisplayModel!.id.toString(),
-                              widget.listnerDisplayModel!.name.toString(),
-                              widget.listnerDisplayModel!);
+                          if (online_stat == 1) {
+                            showChatRequestDialog(
+                                context,
+                                SharedPreference.getValue(
+                                    PrefConstants.MERA_USER_ID),
+                                widget.listnerDisplayModel!.id.toString(),
+                                widget.listnerDisplayModel!.id.toString(),
+                                widget.listnerDisplayModel!.name.toString(),
+                                widget.listnerDisplayModel!);
+                          } else {
+                            print("User is offline");
+                          }
                         }
                       },
                       child: const Text(
