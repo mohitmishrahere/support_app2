@@ -980,14 +980,15 @@ class APIServices {
 
 Future<int> fetchStatus(String value) async {
   int onlineStatus = 0;
-  String apiUrl = 'https://api.loof.in/manage/api/listner/$value';
+  String apiUrl = 'https://support2heal.com/manage/api/listner/$value';
   try {
     http.Response response = await http.get(Uri.parse(apiUrl));
 
     if (response.statusCode == 200) {
+      log("Responce : 200");
       String responseData = response.body;
 
-      // print(responseData);
+      print(responseData);
       Map<String, dynamic> res = jsonDecode(responseData);
       List<dynamic> dataList = res['data'];
       if (dataList.isNotEmpty) {
@@ -995,7 +996,7 @@ Future<int> fetchStatus(String value) async {
 
         onlineStatus = user['online_status'];
 
-        // print('Online Status: $onlineStatus');
+        print('Online Status: $onlineStatus');
       }
     } else {
       // API request failed

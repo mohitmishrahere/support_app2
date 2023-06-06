@@ -29,6 +29,7 @@ import '../../sharedpreference/sharedpreference.dart';
 import '../../widget/toast_widget.dart';
 import '../call/call.dart';
 import 'chat_request_screen.dart';
+import 'helper_screen.dart';
 
 class HelperDetailScreen extends StatefulWidget {
   final listner.Data? listnerDisplayModel;
@@ -252,13 +253,10 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                               borderRadius: BorderRadius.circular(20))),
                       onPressed: () async {
                         online_stat = await fetchStatus(
-                            SharedPreference.getValue(
-                                    PrefConstants.MERA_USER_ID)
-                                .toString());
+                            widget.listnerDisplayModel!.id.toString());
                         if (double.tryParse(SharedPreference.getValue(
                                 PrefConstants.WALLET_AMOUNT))! <=
                             5.0) {
-                          print(online_stat);
                           showLowBalancetDialog(context);
                           // if (online_stat == 1) {
                           //   onCallPlaced();
@@ -269,9 +267,11 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                           if (online_stat == 1) {
                             onCallPlaced();
                           } else {
-                            EasyLoading.show(status: "Oops User is Offline");
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Listner Went Offline"),
+                            ));
                             Navigator.pop(context);
-                            EasyLoading.dismiss();
                           }
                         }
                       },
@@ -303,9 +303,7 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                               borderRadius: BorderRadius.circular(20))),
                       onPressed: () async {
                         online_stat = await fetchStatus(
-                            SharedPreference.getValue(
-                                    PrefConstants.MERA_USER_ID)
-                                .toString());
+                            widget.listnerDisplayModel!.id.toString());
                         if (double.tryParse(SharedPreference.getValue(
                                 PrefConstants.WALLET_AMOUNT))! <=
                             5.0) {
@@ -321,7 +319,11 @@ class _HelperDetailScreenState extends State<HelperDetailScreen> {
                                 widget.listnerDisplayModel!.name.toString(),
                                 widget.listnerDisplayModel!);
                           } else {
-                            print("User is offline");
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text("Listner Went Offline"),
+                            ));
+                            Navigator.pop(context);
                           }
                         }
                       },

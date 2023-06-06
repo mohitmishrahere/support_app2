@@ -157,6 +157,7 @@ class _HelperScreenState extends State<HelperScreen> {
                                                             ?.data?[index],
                                                     ratingModel: ratingModel,
                                                   )));
+                                      await apiGetListnerList();
                                     }
                                   },
                                   child: Padding(
